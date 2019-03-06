@@ -90,15 +90,12 @@ fn main() -> Result<(), failure::Error> {
   //read config.toml
   let config: Config = serde_any::from_file("test-blog/config.toml")?;
 
+  //collect the .md files and parse into a vec of posts
   let posts: Vec<Post> = WalkDir::new("test-blog/content/posts")
     .into_iter()
     .skip(1)
     .map(|post_path| parse_post(post_path.unwrap().path().to_str().unwrap(), &config).unwrap())
     .collect();
-
-  // for post in WalkDir::new("test-blog/content/posts").into_iter().skip(1) {
-  //   println!("{}", post?.path().display());
-  // }
 
   let site = Site {
     config: config,
