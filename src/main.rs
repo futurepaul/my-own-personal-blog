@@ -4,8 +4,6 @@ use serde::{Deserialize, Serialize};
 use serde_any;
 use std::collections::BTreeMap;
 use std::fs;
-use std::fs::File;
-use std::io::prelude::*;
 use walkdir::WalkDir;
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -97,12 +95,16 @@ fn main() -> Result<(), failure::Error> {
     .map(|post_path| parse_post(post_path.unwrap().path().to_str().unwrap(), &config).unwrap())
     .collect();
 
+  //build the site object
   let site = Site {
     config: config,
     posts: posts,
   };
 
+  //render index.html and save to build folder
   render_index(&site)?;
+
+  //render the posts and save them to build folder
   posts_to_files(&site)?;
 
   Ok(())
