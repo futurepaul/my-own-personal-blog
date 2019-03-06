@@ -169,6 +169,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 name = "my-own-personal-blog"
 version = "0.1.0"
 dependencies = [
+ "failure 0.1.5 (registry+https://github.com/rust-lang/crates.io-index)",
  "handlebars 1.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "pulldown-cmark 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.89 (registry+https://github.com/rust-lang/crates.io-index)",
