@@ -1,0 +1,11 @@
+[package]
+name = "my-own-personal-blog"
+version = "0.1.0"
+authors = ["Paul Miller <paul@pauljmiller.com>"]
+edition = "2018"
+
+[dependencies]
+pulldown-cmark = "0.2.0"
+walkdir = "2.2.7"
+handlebars = "1.1.0"
+
