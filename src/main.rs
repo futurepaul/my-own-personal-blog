@@ -1,11 +1,20 @@
 use handlebars::Handlebars;
 use pulldown_cmark::{html, Parser};
+use serde::Deserialize;
+use serde_any;
 use std::collections::BTreeMap;
 use std::fs;
 use std::fs::File;
 use std::io::prelude::*;
 
+#[derive(Deserialize)]
+struct Config {
+  site_name: String,
+}
+
 fn main() -> std::io::Result<()> {
+  let config: Config = serde_any::from_file("test-blog/config.toml").unwrap();
+
   let template = "<!DOCTYPE html>
                     <html>
                       <head>
@@ -21,7 +30,7 @@ fn main() -> std::io::Result<()> {
   hb.register_template_string("templ.html", template).unwrap();
   // hb.render("templ.html",
 
-  let mut source_file = File::open("test-blog/input/1.md").unwrap();
+  let mut source_file = File::open("test-blog/content/posts/1.md").unwrap();
   let mut markdown_str = String::new();
   source_file.read_to_string(&mut markdown_str)?;
 
@@ -40,7 +49,7 @@ fn main() -> std::io::Result<()> {
   data.insert("blogpost".to_string(), html_buf);
   let cool_new_file = hb.render("templ.html", &data).unwrap();
 
-  fs::write("test-blog/output/1.html", cool_new_file)?;
+  fs::write("test-blog/build/posts/1.html", cool_new_file)?;
 
   Ok(())
 }
