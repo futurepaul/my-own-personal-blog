@@ -3,9 +3,9 @@ use handlebars::{Context, Handlebars, Helper, JsonRender, Output, RenderContext,
 use pulldown_cmark::{html, Parser};
 use serde::{Deserialize, Serialize};
 use serde_any;
-use std::collections::BTreeMap;
 use std::fs;
 use walkdir::{DirEntry, WalkDir};
+use clap::{App, Arg};
 
 #[derive(Serialize, Deserialize, Clone)]
 struct Config {
@@ -120,11 +120,33 @@ fn is_hidden(entry: &DirEntry) -> bool {
   entry
     .file_name()
     .to_str()
-    .map(|s| s.starts_with("."))
+    .map(|s| s.starts_with('.'))
     .unwrap_or(false)
 }
 
+fn generate_dirs(path: &str) -> Result<(), failure::Error> {
+  let mut builder = fs::DirBuilder::new();
+  builder.recursive(true);
+  builder.create(format!("{}/templates", path))?;
+  builder.create(format!("{}/content/static", path))?;
+
+  Ok(())
+}
+
 fn main() -> Result<(), failure::Error> {
+  let args = App::new("blog").arg(
+    Arg::with_name("init")
+      .long("init")
+      .value_name("PATH")
+      .help("Specifies the name of the folder containing site info")
+      .takes_value(true)
+  )
+  .get_matches();
+
+  if let Some(path) = args.value_of("init") {
+    generate_dirs(path)?;
+  }
+
   //read config.toml
   let config: Config = serde_any::from_file("test-blog/config.toml")?;
 
@@ -142,8 +164,8 @@ fn main() -> Result<(), failure::Error> {
 
   //build the site object
   let site = Site {
-    config: config,
-    posts: posts,
+    config,
+    posts,
   };
 
   //render index.html and save to build folder
