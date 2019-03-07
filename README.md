@@ -15,3 +15,5 @@ a static site generator
 - [x] render index.html list with set of posts
 - [x] render a separate page for each post
 - [ ] make the rss template and render that too
+- [ ] parse dates somehow (a helper function maybe?)
+- [ ] make sure the posts show up in order (also to do with dates)
