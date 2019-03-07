@@ -11,4 +11,5 @@ handlebars = "1.1.0"
 serde = { version = "1.0.89", features = ["derive"]}
 serde_any = { version = "0.5", default-features = false, features = ["toml"] }
 failure = "0.1.5"
+chrono = { version = "0.4.6", features =  ["serde"] }
 

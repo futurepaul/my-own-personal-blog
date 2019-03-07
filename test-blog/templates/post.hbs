@@ -1,0 +1,16 @@
+{{> header post_title=meta.title}}
+
+<main>
+  <article>
+    <h1>{{meta.title}}</h1>
+    <h2>{{meta.subtitle}}</h2>
+
+    {{{ content }}}
+
+    <aside>Posted on {{meta.date}}</aside>
+
+  </article>
+
+</main>
+
+{{> footer }}

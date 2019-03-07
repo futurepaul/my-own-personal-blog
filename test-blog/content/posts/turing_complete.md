@@ -1,0 +1,22 @@
++++
+title = "Call me when you're Turing complete"
+slug = "call-me-when-youre-turing-complete"
+subtitle = "The next generation needs to innovate on simulation, not just looks"
+date = "2015-01-22T12:45:59.324310806Z"
++++
+
+_Editor's note: I wrote this at E3 in 2012. I don't think it makes a strong or clear enough point, and I'm guessing that's why I or my editor killed it. What I love about it though is how games like Shadow of Mordor and No Man's Sky are showing the power of simulation and procedural generation in making compelling AAA games. I can't say "see I told you so" because I never did, but still: see?_
+
+When I think about "next-gen" games, my mind typically rushes to graphics. Square Enix's _Final Fantasy_ tech demo at E3 is the current winner in this regard, with Ubisoft's _Watch_Dogs_ and Epic's Unreal Engine 4 running close behind. And it's true, the next generation of consoles are going to have graphics that will make current standouts like _Uncharted_ and _Gears of War_ look quaint. I'm excited about this; I love looking at things, especially pretty things. But ultimately graphics are iterative, just like most of the game mechanics that have arrived in this console generation. What sort of game mechanics will help the next generation of games take a left turn and offer experiences that are entirely new?
+
+When I think _really hard_ about "next-gen" games, I think about _Dwarf Fortress_. In the game you build a simulated society, brick by brick. It's like _The Sims_ meets _Minecraft_. Your dwarves live entire simulated lives under your care, mining, crafting, building, farming, sleeping, eating, and fighting. They care about each other, they care about beer, they care what quality of materials the furniture in their room is made out of. Dwarves frequently go insane, or starve themselves to death in grief, or carve their stories into the walls of your fortress.
+
+_Dwarf Fortress_ is in ASCII. It's ugly. It's impossibly difficult to play. It's simulating so much that it can struggle with "frame rate" as your fortress grows in complexity. I typically play it for a couple days, sinking hours into referencing tutorials and building porous fortresses that typically fall to the first wave of hostile elves — or elephants. Then I give up, Google to see if there are any _Minecraft_ mods yet that offer a decent subset of _Dwarf Fortress_, and then it's 4am and I have to work the next day.
+
+Something I love about _Minecraft_ and _Dwarf Fortress_ is that they're what's called "Turing Complete," meaning that they're capable of sufficiently complex simulations to allow you to build a computer within the game — or at least a calculator. All this really requires is switches, and a way to chain those switches together in a way that they can be manipulated by inputs and by each other. In _Dwarf Fortress_ you can use flowing water and wooden gates to get your Turing on, in _Minecraft_ there's redstone wiring and switches — Notch was heavily influenced by _Dwarf Fortress_, and made a point of making his game Turing Complete, a "feature" that was a bit more incedental in _Dwarf Fortress_.
+
+Of course, I've never built a computer in either game, and have no plans to. But I think the fact that I _can_ makes a statement about what sort of game it is. I feel like the virtual world of Neal Stephenson's _Snow Crash_ would have no problem with Turing, and in William Gibson's _Neuromancer_, the entire virtual world is basically made out of representations of computers. But imagine building a computer with your friends in _World of Warcraft_, or in _Grand Theft Auto_'s "open world".
+
+In _Mass Effect_, you have a few hundred choices to make through the game, and a handful of potential outcomes at the end — which puts it in the top echelon for choice in console games. In _Dwarf Fortress_, the story writes itself, it's infinitely varied, and there is no end. I'm not about abandoning story, like in _Sim City_ or _Civilization_, I just want the story to be the game itself, and granularly impacted by my every action — I don't want glorified checkpoints with "sandbox" in between.
+
+I don't think these ideas are new, but they're commonly associated with indie and fringe games, not the elusive next-gen consoles from Microsoft and Sony that could be in our homes sometime late next year. What simulation needs is a serious game studio and some serious hardware to pull it from the ghetto.

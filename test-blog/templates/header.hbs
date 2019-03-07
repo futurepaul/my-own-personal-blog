@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>
+    {{#if post_title}}
+    {{ post_title }}
+    {{else}}
+    {{ config.site_name }}
+    {{/if}}
+  </title>
+  <link rel="shortcut icon" href="/static/favicon.ico" />
+  <link rel="stylesheet" href="/static/normalize.css" />
+  <link rel="stylesheet" href="/static/main.css" />
+  <link rel="alternate" type="application/rss+xml" title="{{ config.site_name }}" href="/rss.xml" />
+</head>
+
+<body>
+  <header>
+    <h1><a href="{{config.site_url}}">{{ config.site_name }}</a></h1>
+  </header>

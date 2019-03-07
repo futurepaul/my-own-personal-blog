@@ -1,0 +1,50 @@
+h1,
+h2,
+h3 {
+  font-weight: normal;
+}
+
+body {
+  font-size: 16px;
+  max-width: 35rem;
+  margin: 0 auto;
+  padding: 5rem 2rem 5rem 2rem;
+}
+
+h1 {
+  font-weight: 500;
+  font-size: 2rem;
+  letter-spacing: -1px;
+}
+
+article h2 {
+  font-style: italic;
+  line-height: 1rem;
+  padding-bottom: 1rem;
+}
+
+p {
+  font-size: 1.2rem;
+  line-height: 1.7;
+}
+
+h1 a {
+  color: black;
+}
+
+footer {
+  padding-top: 1rem;
+  font-style: italic;
+  font-size: 0.8rem;
+}
+
+article {
+  padding-top: 1rem;
+}
+
+aside {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  color: #444;
+  font-size: 1.2rem;
+}

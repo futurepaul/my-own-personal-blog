@@ -1,14 +1,18 @@
-use handlebars::Handlebars;
+use chrono::{DateTime, Utc};
+use handlebars::{
+  handlebars_helper, Context, Handlebars, Helper, Output, RenderContext, RenderError,
+};
 use pulldown_cmark::{html, Parser};
 use serde::{Deserialize, Serialize};
 use serde_any;
 use std::collections::BTreeMap;
 use std::fs;
-use walkdir::WalkDir;
+use walkdir::{DirEntry, WalkDir};
 
 #[derive(Serialize, Deserialize, Clone)]
 struct Config {
   site_name: String,
+  site_url: String,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -28,13 +32,16 @@ struct Post {
 struct PostMeta {
   title: String,
   slug: String,
-  date: String,
+  subtitle: String,
+  date: DateTime<Utc>,
 }
 
 fn render_index(site: &Site) -> Result<(), failure::Error> {
   //read the template
   let mut hb = Handlebars::new();
-  hb.register_template_file("index", "test-blog/templates/index.html.hbs")?;
+  hb.register_template_file("index", "test-blog/templates/index.hbs")?;
+  hb.register_template_file("footer", "test-blog/templates/footer.hbs")?;
+  hb.register_template_file("header", "test-blog/templates/header.hbs")?;
 
   //render the config data with the template
   let index_rendered = hb.render("index", site)?;
@@ -67,10 +74,33 @@ fn parse_post(source: &str, config: &Config) -> Result<Post, failure::Error> {
   })
 }
 
-fn posts_to_files(site: &Site) -> Result<(), failure::Error> {
+// fn date_helper(
+//   h: &Helper,
+//   _: &Handlebars,
+//   _: &Context,
+//   _: &mut RenderContext,
+//   out: &mut Output,
+// ) -> Result<(), RenderError> {
+//   // get parameter from helper or throw an error
+//   let date = h
+//     .param(0)
+//     .ok_or(RenderError::new("Param 0 is required for date helper."))?;
+//   let date_formatted = date.value().as_ref().parse::<DateTime<Utc>>();
+//   let rendered = param.value().render().format("%a %b %e %T %Y").to_string();
+//   out.write(rendered.as_ref())?;
+//   Ok(())
+// }
+
+// handlebars_helper!(dt: )
+
+fn render_posts(site: &Site) -> Result<(), failure::Error> {
   //read the template
   let mut hb = Handlebars::new();
-  hb.register_template_file("post", "test-blog/templates/post.html.hbs")?;
+  hb.register_template_file("post", "test-blog/templates/post.hbs")?;
+  hb.register_template_file("footer", "test-blog/templates/footer.hbs")?;
+  hb.register_template_file("header", "test-blog/templates/header.hbs")?;
+
+  // hb.register_helper("date", Box::new(date_helper));
 
   for post in site.posts.iter() {
     //render the post with the template
@@ -84,6 +114,14 @@ fn posts_to_files(site: &Site) -> Result<(), failure::Error> {
   Ok(())
 }
 
+fn is_hidden(entry: &DirEntry) -> bool {
+  entry
+    .file_name()
+    .to_str()
+    .map(|s| s.starts_with("."))
+    .unwrap_or(false)
+}
+
 fn main() -> Result<(), failure::Error> {
   //read config.toml
   let config: Config = serde_any::from_file("test-blog/config.toml")?;
@@ -91,8 +129,13 @@ fn main() -> Result<(), failure::Error> {
   //collect the .md files and parse into a vec of posts
   let posts: Vec<Post> = WalkDir::new("test-blog/content/posts")
     .into_iter()
+    .filter_entry(|e| !is_hidden(e))
     .skip(1)
-    .map(|post_path| parse_post(post_path.unwrap().path().to_str().unwrap(), &config).unwrap())
+    .map(|post_path| {
+      let path = post_path.unwrap();
+      println!("Processing: {}", path.path().display());
+      parse_post(path.path().to_str().unwrap(), &config).unwrap()
+    })
     .collect();
 
   //build the site object
@@ -105,7 +148,7 @@ fn main() -> Result<(), failure::Error> {
   render_index(&site)?;
 
   //render the posts and save them to build folder
-  posts_to_files(&site)?;
+  render_posts(&site)?;
 
   Ok(())
 }

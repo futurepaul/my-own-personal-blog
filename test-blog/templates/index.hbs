@@ -1,0 +1,16 @@
+{{> header }}
+
+<main>
+  <ul>
+    {{#each posts as |post| ~}}
+    <li>
+      <aside>{{ post.meta.date }}</aside>
+      <h2>
+        <a href="/posts/{{ post.meta.slug }}.html">{{ post.meta.title }}</a>
+      </h2>
+    </li>
+    {{/each~}}
+  </ul>
+</main>
+
+{{> footer }}
