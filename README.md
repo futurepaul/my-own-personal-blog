@@ -17,3 +17,5 @@ a static site generator
 - [ ] make the rss template and render that too
 - [ ] parse dates somehow (a helper function maybe?)
 - [ ] make sure the posts show up in order (also to do with dates)
+- [ ] regenerate the entire build dir when run to make sure everything exists
+- [ ] specify folder layout in config.toml
