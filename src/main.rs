@@ -1,7 +1,5 @@
 use chrono::{DateTime, Utc};
-use handlebars::{
-  handlebars_helper, Context, Handlebars, Helper, Output, RenderContext, RenderError,
-};
+use handlebars::{Context, Handlebars, Helper, JsonRender, Output, RenderContext, RenderError};
 use pulldown_cmark::{html, Parser};
 use serde::{Deserialize, Serialize};
 use serde_any;
@@ -43,6 +41,8 @@ fn render_index(site: &Site) -> Result<(), failure::Error> {
   hb.register_template_file("footer", "test-blog/templates/footer.hbs")?;
   hb.register_template_file("header", "test-blog/templates/header.hbs")?;
 
+  hb.register_helper("date", Box::new(date_helper));
+
   //render the config data with the template
   let index_rendered = hb.render("index", site)?;
 
@@ -74,24 +74,26 @@ fn parse_post(source: &str, config: &Config) -> Result<Post, failure::Error> {
   })
 }
 
-// fn date_helper(
-//   h: &Helper,
-//   _: &Handlebars,
-//   _: &Context,
-//   _: &mut RenderContext,
-//   out: &mut Output,
-// ) -> Result<(), RenderError> {
-//   // get parameter from helper or throw an error
-//   let date = h
-//     .param(0)
-//     .ok_or(RenderError::new("Param 0 is required for date helper."))?;
-//   let date_formatted = date.value().as_ref().parse::<DateTime<Utc>>();
-//   let rendered = param.value().render().format("%a %b %e %T %Y").to_string();
-//   out.write(rendered.as_ref())?;
-//   Ok(())
-// }
+fn date_reformatter(date_string: String) -> String {
+  let date = date_string.parse::<DateTime<Utc>>().unwrap();
+  date.format("%B %e, %Y").to_string()
+}
 
-// handlebars_helper!(dt: )
+fn date_helper(
+  h: &Helper,
+  _: &Handlebars,
+  _: &Context,
+  _: &mut RenderContext,
+  out: &mut Output,
+) -> Result<(), RenderError> {
+  let date_var = h
+    .param(0)
+    .ok_or_else(|| RenderError::new("Param not found for helper \"date\""))?;
+  let date_string = date_var.value().render();
+  let date_string_reformatted = date_reformatter(date_string);
+  out.write(&date_string_reformatted)?;
+  Ok(())
+}
 
 fn render_posts(site: &Site) -> Result<(), failure::Error> {
   //read the template
@@ -100,7 +102,7 @@ fn render_posts(site: &Site) -> Result<(), failure::Error> {
   hb.register_template_file("footer", "test-blog/templates/footer.hbs")?;
   hb.register_template_file("header", "test-blog/templates/header.hbs")?;
 
-  // hb.register_helper("date", Box::new(date_helper));
+  hb.register_helper("date", Box::new(date_helper));
 
   for post in site.posts.iter() {
     //render the post with the template
