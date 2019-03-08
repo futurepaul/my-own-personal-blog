@@ -14,8 +14,9 @@ a static site generator
 - [x] add toml frontmatter and turn that into metadata
 - [x] render index.html list with set of posts
 - [x] render a separate page for each post
-- [ ] make the rss template and render that too
-- [ ] parse dates somehow (a helper function maybe?)
-- [ ] make sure the posts show up in order (also to do with dates)
+- [x] make the rss template and render that too
+- [x] robots.txt
+- [x] parse dates with a helper function (also in the special rss spec)
+- [x] make sure the posts show up in order (also to do with dates)
 - [ ] regenerate the entire build dir when run to make sure everything exists
 - [ ] specify folder layout in config.toml

@@ -2,7 +2,7 @@
 title = "I made a blog"
 slug = "i-made-a-blog"
 subtitle = "You're welcome."
-date = "2015-01-22T12:45:59.324310806Z"
+date = "2015-01-22T00:45:59.324310806Z"
 +++
 
 This was long overdue. There are things I think about, and now I can publish all of them on the internet. Not just, you know, the sort of thing that belongs on Engadget, The Verge, or the Karma blog. But stuff that belongs under a sort of banner like "Paul's blog" so you really know what to expect.

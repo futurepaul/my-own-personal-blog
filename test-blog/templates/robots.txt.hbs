@@ -1,0 +1,5 @@
+User-agent: *
+{{#each config.disallow as |disallow| ~}}
+Disallow: {{disallow}}
+{{/each~}}
+Sitemap: {{config.site_url}}/rss.xml

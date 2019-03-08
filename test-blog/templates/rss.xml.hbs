@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+  <channel>
+    <atom:link href="{{ config.site_url}}/rss.xml" rel="self" type="application/rss+xml" />
+
+    <title>
+      {{ config.site_name }}
+    </title>
+    <description>{{config.site_name}}</description>
+    <link>{{ config.site_url }}</link>
+    {{#each posts as |post| ~}}
+    {{#if @first}}
+    <lastBuildDate>{{ date_rss post.meta.date }}</lastBuildDate>
+    {{/if}}
+    {{/each~}}
+    <generator>https://github.com/futurepaul/my-own-personal-blog</generator>
+
+    {{#each posts as |post| ~}}
+    <item>
+      <title>
+        {{ post.meta.title }}
+      </title>
+      <link>{{ config.site_url }}/{{ post.meta.slug }}.html</link>
+      <pubDate>{{ date_rss post.meta.date }}</pubDate>
+      <guid>{{ config.site_url }}/{{ post.meta.slug }}.html</guid>
+      <description>
+        <![CDATA[{{{ content }}}]]>
+      </description>
+    </item>
+    {{/each~}}
+  </channel>
+</rss>
