@@ -3,3 +3,4 @@ site_url = "https://pauljmiller.com"
 author = "Paul Miller"
 email = "paul@pauljmiller.com"
 disallow = ["/secrets/", "/more-secrets/"]
+root_dir = "test-blog"

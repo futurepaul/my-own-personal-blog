@@ -5,6 +5,7 @@ use pulldown_cmark::{html, Parser};
 use serde::{Deserialize, Serialize};
 use serde_any;
 use std::fs;
+use std::path::{Path, PathBuf};
 use walkdir::{DirEntry, WalkDir};
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -20,6 +21,7 @@ struct Config {
 struct Site {
   config: Config,
   posts: Vec<Post>,
+  root: String,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -40,9 +42,9 @@ struct PostMeta {
 fn render_index(site: &Site) -> Result<(), failure::Error> {
   //read the template
   let mut hb = Handlebars::new();
-  hb.register_template_file("index", "test-blog/templates/index.hbs")?;
-  hb.register_template_file("footer", "test-blog/templates/footer.hbs")?;
-  hb.register_template_file("header", "test-blog/templates/header.hbs")?;
+  hb.register_template_file("index", join_root(&site.root, "templates/index.hbs"))?;
+  hb.register_template_file("footer", join_root(&site.root, "templates/footer.hbs"))?;
+  hb.register_template_file("header", join_root(&site.root, "templates/header.hbs"))?;
 
   hb.register_helper("date", Box::new(date_helper));
 
@@ -50,7 +52,7 @@ fn render_index(site: &Site) -> Result<(), failure::Error> {
   let index_rendered = hb.render("index", site)?;
 
   //save to the build folder
-  fs::write("test-blog/build/index.html", index_rendered)?;
+  fs::write(join_root(&site.root, "build/index.html"), index_rendered)?;
 
   Ok(())
 }
@@ -58,13 +60,13 @@ fn render_index(site: &Site) -> Result<(), failure::Error> {
 fn render_robots(site: &Site) -> Result<(), failure::Error> {
   //read the template
   let mut hb = Handlebars::new();
-  hb.register_template_file("robots", "test-blog/templates/robots.txt.hbs")?;
+  hb.register_template_file("robots", join_root(&site.root, "templates/robots.txt.hbs"))?;
 
   //render the config data with the template
   let robots_rendered = hb.render("robots", site)?;
 
   //save to the build folder
-  fs::write("test-blog/build/robots.txt", robots_rendered)?;
+  fs::write(join_root(&site.root, "build/robots.txt"), robots_rendered)?;
 
   Ok(())
 }
@@ -72,7 +74,7 @@ fn render_robots(site: &Site) -> Result<(), failure::Error> {
 fn render_rss(site: &Site) -> Result<(), failure::Error> {
   //read the template
   let mut hb = Handlebars::new();
-  hb.register_template_file("rss", "test-blog/templates/rss.xml.hbs")?;
+  hb.register_template_file("rss", join_root(&site.root, "templates/rss.xml.hbs"))?;
 
   hb.register_helper("date_rss", Box::new(date_rss_helper));
 
@@ -80,7 +82,7 @@ fn render_rss(site: &Site) -> Result<(), failure::Error> {
   let rss_rendered = hb.render("rss", site)?;
 
   //save to the build folder
-  fs::write("test-blog/build/rss.xml", rss_rendered)?;
+  fs::write(join_root(&site.root, "build/rss.xml"), rss_rendered)?;
 
   Ok(())
 }
@@ -152,9 +154,9 @@ fn date_rss_helper(
 fn render_posts(site: &Site) -> Result<(), failure::Error> {
   //read the template
   let mut hb = Handlebars::new();
-  hb.register_template_file("post", "test-blog/templates/post.hbs")?;
-  hb.register_template_file("footer", "test-blog/templates/footer.hbs")?;
-  hb.register_template_file("header", "test-blog/templates/header.hbs")?;
+  hb.register_template_file("post", join_root(&site.root, "templates/post.hbs"))?;
+  hb.register_template_file("footer", join_root(&site.root, "templates/footer.hbs"))?;
+  hb.register_template_file("header", join_root(&site.root, "templates/header.hbs"))?;
 
   hb.register_helper("date", Box::new(date_helper));
 
@@ -163,7 +165,7 @@ fn render_posts(site: &Site) -> Result<(), failure::Error> {
     let post_rendered = hb.render("post", &post)?;
 
     //save to the build folder
-    let write_path = format!("test-blog/build/posts/{}.html", &post.meta.slug);
+    let write_path = join_root(&site.root, &format!("build/posts/{}.html", &post.meta.slug));
     fs::write(write_path, post_rendered)?;
   }
 
@@ -187,6 +189,10 @@ fn generate_dirs(path: &str) -> Result<(), failure::Error> {
   Ok(())
 }
 
+fn join_root(root: &str, rest: &str) -> PathBuf {
+  Path::new(root).join(rest)
+}
+
 fn main() -> Result<(), failure::Error> {
   let args = App::new("blog")
     .arg(
@@ -196,17 +202,31 @@ fn main() -> Result<(), failure::Error> {
         .help("Specifies the name of the folder containing site info")
         .takes_value(true),
     )
+    .arg(
+      Arg::with_name("root")
+        .long("root")
+        .value_name("PATH")
+        .help("Where you want to run this command")
+        .takes_value(true),
+    )
     .get_matches();
 
   if let Some(path) = args.value_of("init") {
     generate_dirs(path)?;
   }
 
+  let mut root_path = "";
+
+  if let Some(path) = args.value_of("root") {
+    println!("root is: {}", path);
+    root_path = path;
+  }
+
   //read config.toml
-  let config: Config = serde_any::from_file("test-blog/config.toml")?;
+  let config: Config = serde_any::from_file(join_root(root_path, "config.toml"))?;
 
   //collect the .md files and parse into a vec of posts
-  let mut posts: Vec<Post> = WalkDir::new("test-blog/content/posts")
+  let mut posts: Vec<Post> = WalkDir::new(join_root(root_path, "content/posts"))
     .into_iter()
     .filter_entry(|e| !is_hidden(e))
     .skip(1)
@@ -221,7 +241,11 @@ fn main() -> Result<(), failure::Error> {
   posts.sort_unstable_by(|a, b| b.meta.date.cmp(&a.meta.date));
 
   //build the site object
-  let site = Site { config, posts };
+  let site = Site {
+    config,
+    posts,
+    root: root_path.to_string(),
+  };
 
   //render index.html and save to build folder
   render_index(&site)?;
