@@ -1,5 +1,6 @@
 use chrono::{DateTime, Utc};
 use clap::{App, Arg};
+use failure::{format_err, Error, Fail};
 use handlebars::{Context, Handlebars, Helper, JsonRender, Output, RenderContext, RenderError};
 use pulldown_cmark::{html, Parser};
 use serde::{Deserialize, Serialize};
@@ -39,7 +40,14 @@ struct PostMeta {
   date: DateTime<Utc>,
 }
 
-fn render_index(site: &Site) -> Result<(), failure::Error> {
+//It seems like this would be better, but I don't know how!
+#[derive(Fail, Debug)]
+#[fail(display = "Couldn't find {}", file)]
+pub struct FileNotFoundError {
+  file: String,
+}
+
+fn render_index(site: &Site) -> Result<(), Error> {
   //read the template
   let mut hb = Handlebars::new();
   hb.register_template_file("index", join_root(&site.root, "templates/index.hbs"))?;
@@ -57,7 +65,7 @@ fn render_index(site: &Site) -> Result<(), failure::Error> {
   Ok(())
 }
 
-fn render_robots(site: &Site) -> Result<(), failure::Error> {
+fn render_robots(site: &Site) -> Result<(), Error> {
   //read the template
   let mut hb = Handlebars::new();
   hb.register_template_file("robots", join_root(&site.root, "templates/robots.txt.hbs"))?;
@@ -71,7 +79,7 @@ fn render_robots(site: &Site) -> Result<(), failure::Error> {
   Ok(())
 }
 
-fn render_rss(site: &Site) -> Result<(), failure::Error> {
+fn render_rss(site: &Site) -> Result<(), Error> {
   //read the template
   let mut hb = Handlebars::new();
   hb.register_template_file("rss", join_root(&site.root, "templates/rss.xml.hbs"))?;
@@ -87,7 +95,7 @@ fn render_rss(site: &Site) -> Result<(), failure::Error> {
   Ok(())
 }
 
-fn parse_post(source: &str, config: &Config) -> Result<Post, failure::Error> {
+fn parse_post(source: &str, config: &Config) -> Result<Post, Error> {
   //read the post from the provided path
   let post_source_md = fs::read_to_string(source)?;
 
@@ -151,7 +159,7 @@ fn date_rss_helper(
   Ok(())
 }
 
-fn render_posts(site: &Site) -> Result<(), failure::Error> {
+fn render_posts(site: &Site) -> Result<(), Error> {
   //read the template
   let mut hb = Handlebars::new();
   hb.register_template_file("post", join_root(&site.root, "templates/post.hbs"))?;
@@ -180,7 +188,7 @@ fn is_hidden(entry: &DirEntry) -> bool {
     .unwrap_or(false)
 }
 
-fn generate_dirs(path: &str) -> Result<(), failure::Error> {
+fn generate_dirs(path: &str) -> Result<(), Error> {
   let mut builder = fs::DirBuilder::new();
   builder.recursive(true);
   builder.create(format!("{}/templates", path))?;
@@ -193,7 +201,7 @@ fn join_root(root: &str, rest: &str) -> PathBuf {
   Path::new(root).join(rest)
 }
 
-fn main() -> Result<(), failure::Error> {
+fn main() -> Result<(), Error> {
   let args = App::new("blog")
     .arg(
       Arg::with_name("init")
@@ -223,7 +231,12 @@ fn main() -> Result<(), failure::Error> {
   }
 
   //read config.toml
-  let config: Config = serde_any::from_file(join_root(root_path, "config.toml"))?;
+  let config: Config = match serde_any::from_file(join_root(root_path, "config.toml")) {
+    Ok(config) => config,
+    Err(_error) => {
+      return Err(format_err!("Can't find config.toml"));
+    }
+  };
 
   //collect the .md files and parse into a vec of posts
   let mut posts: Vec<Post> = WalkDir::new(join_root(root_path, "content/posts"))
