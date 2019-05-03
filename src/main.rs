@@ -28,6 +28,7 @@ struct Site {
 #[derive(Serialize, Deserialize)]
 struct Post {
   meta: PostMeta,
+  //Wish I could get rid of this redundant config but I don't know how
   config: Config,
   content: String,
 }
@@ -40,7 +41,8 @@ struct PostMeta {
   date: DateTime<Utc>,
 }
 
-//It seems like this would be better, but I don't know how!
+//It seems like this would be better for errors
+//but I don't know how to get it to work!
 #[derive(Fail, Debug)]
 #[fail(display = "Couldn't find {}", file)]
 pub struct FileNotFoundError {
@@ -119,9 +121,12 @@ fn parse_post(source: &str, config: &Config) -> Result<Post, Error> {
 
 fn date_reformatter(date_string: String) -> String {
   let date = date_string.parse::<DateTime<Utc>>().unwrap();
+  //Looks like this: January 22, 2015
+  //TODO: make this user-configurable
   date.format("%B %e, %Y").to_string()
 }
 
+//Handlebars needs fancy "helper" functions
 fn date_helper(
   h: &Helper,
   _: &Handlebars,
@@ -138,6 +143,7 @@ fn date_helper(
   Ok(())
 }
 
+//RSS spec has a special required format (rfc2822 is close enough)
 fn date_rss_reformatter(date_string: String) -> String {
   let date = date_string.parse::<DateTime<Utc>>().unwrap();
   date.to_rfc2822()
@@ -207,20 +213,21 @@ fn main() -> Result<(), Error> {
       Arg::with_name("init")
         .long("init")
         .value_name("PATH")
-        .help("Specifies the name of the folder containing site info")
+        .help("Create a new site in <PATH>")
         .takes_value(true),
     )
     .arg(
       Arg::with_name("root")
         .long("root")
         .value_name("PATH")
-        .help("Where you want to run this command")
+        .help("Build an existing site located in <PATH>")
         .takes_value(true),
     )
     .get_matches();
 
   if let Some(path) = args.value_of("init") {
     generate_dirs(path)?;
+    return Ok(());
   }
 
   let mut root_path = "";
