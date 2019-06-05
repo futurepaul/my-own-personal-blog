@@ -55,6 +55,7 @@ fn render_index(site: &Site) -> Result<(), Error> {
   hb.register_template_file("index", join_root(&site.root, "templates/index.hbs"))?;
   hb.register_template_file("footer", join_root(&site.root, "templates/footer.hbs"))?;
   hb.register_template_file("header", join_root(&site.root, "templates/header.hbs"))?;
+  hb.register_template_file("nav", join_root(&site.root, "templates/nav.hbs"))?;
 
   hb.register_helper("date", Box::new(date_helper));
 
@@ -171,6 +172,7 @@ fn render_posts(site: &Site) -> Result<(), Error> {
   hb.register_template_file("post", join_root(&site.root, "templates/post.hbs"))?;
   hb.register_template_file("footer", join_root(&site.root, "templates/footer.hbs"))?;
   hb.register_template_file("header", join_root(&site.root, "templates/header.hbs"))?;
+  hb.register_template_file("nav", join_root(&site.root, "templates/nav.hbs"))?;
 
   hb.register_helper("date", Box::new(date_helper));
 
