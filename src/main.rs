@@ -2,12 +2,20 @@ use chrono::{DateTime, Utc};
 use clap::{App, Arg};
 use failure::{format_err, Error, Fail};
 use handlebars::{Context, Handlebars, Helper, JsonRender, Output, RenderContext, RenderError};
-use pulldown_cmark::{html, Parser};
+use pulldown_cmark::{html, Parser, Options, Event, Tag};
 use serde::{Deserialize, Serialize};
 use serde_any;
 use std::fs;
 use std::path::{Path, PathBuf};
 use walkdir::{DirEntry, WalkDir};
+use syntect::easy::HighlightLines;
+use syntect::highlighting::{Theme, ThemeSet};
+use syntect::html::{
+    highlighted_html_for_string, start_highlighted_html_snippet, styled_line_to_highlighted_html,
+    IncludeBackground,
+};
+use syntect::parsing::{SyntaxReference, SyntaxSet};
+use std::borrow::Cow;
 
 #[derive(Serialize, Deserialize, Clone)]
 struct Config {
@@ -109,7 +117,52 @@ fn parse_post(source: &str, config: &Config) -> Result<Post, Error> {
   let post_meta: PostMeta = serde_any::from_str(&post_vec[0], serde_any::Format::Toml)?;
 
   //parse the markdown
-  let parser = Parser::new(&post_vec[1]);
+  let mut h: Option<HighlightLines> = None;
+  let syntax = SyntaxSet::load_defaults_newlines();
+  let theme_set = ThemeSet::load_defaults();
+  let theme = &theme_set.themes["InspiredGitHub"];
+  let parser = Parser::new_ext(&post_vec[1], Options::empty()).map(|event| match event {
+    Event::Text(ref text) => {
+      if let Some(ref mut h) = h {
+        let highlighted = &h.highlight(&text, &syntax);
+        let html =
+            styled_line_to_highlighted_html(highlighted, IncludeBackground::No);
+        Event::Html(Cow::from(html))
+    } else {
+        event
+    }
+    },
+    Event::Start(Tag::CodeBlock(ref info)) => {
+      // set local highlighter, if found
+      if let Some(cur_syntax) = info
+      .clone()
+      .split(' ')
+      .next()
+      .and_then(|lang| syntax.find_syntax_by_token(lang)) {
+        h = Some(HighlightLines::new(cur_syntax, &theme));
+      // let snippet = start_highlighted_html_snippet(&theme);
+      // Event::Html(Cow::from(snippet.0))
+      Event::Html(
+        Cow::from("<pre style=\"background-color: #eff0f1;\">".to_owned())
+      )
+      } else {
+        Event::Html(
+          Cow::from("<pre style=\"white-space: pre-wrap;\">".to_owned())
+        )
+      }
+      
+    },
+    Event::End(Tag::CodeBlock(_)) => {
+      // reset highlighter
+      h = None;
+      // close the code block
+      Event::Html(
+          Cow::from("</pre>".to_owned())
+      )
+    }
+    _ => event,
+  });
+
   let mut html_buf = String::new();
   html::push_html(&mut html_buf, parser);
 
